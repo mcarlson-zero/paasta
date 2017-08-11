@@ -173,7 +173,7 @@ def paasta_to_task_config_kwargs(
         'docker_parameters': docker_parameters,
     }
     if gpus > 0:
-        kwargs['gpus'] = float(gpus)
+        kwargs['gpus'] = int(gpus)
 
     config_hash = get_config_hash(
         kwargs,

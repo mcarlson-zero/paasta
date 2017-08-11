@@ -213,10 +213,13 @@ class ClusterAutoscaler(ResourceLogMixin):
         self.log.debug(region_pool_utilization_dict)
         free_pool_resources = region_pool_utilization_dict['free']
         total_pool_resources = region_pool_utilization_dict['total']
-        utilization = 1.0 - min([
-            float(float(pair[0]) / float(pair[1]))
-            for pair in zip(free_pool_resources, total_pool_resources)
-        ])
+        used_percs = []
+        for pair in zip(free_pool_resources, total_pool_resources):
+            try:
+                used_percs.append(float(float(pair[0]) / float(pair[1])))
+            except ZeroDivisionError:  # should occur for 0 gpus, which is valid
+                pass
+        utilization = 1.0 - min(used_percs)
         target_utilization = self.pool_settings.get('target_utilization', DEFAULT_TARGET_UTILIZATION)
         return utilization - target_utilization
 
